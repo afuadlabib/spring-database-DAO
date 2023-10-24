@@ -1,6 +1,5 @@
 package com.fuad.database.dao.impl;
 
-import com.fuad.database.dao.BookDao;
 import com.fuad.database.domain.Book;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
