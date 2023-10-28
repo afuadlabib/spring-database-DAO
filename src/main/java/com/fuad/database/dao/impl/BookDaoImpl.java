@@ -4,12 +4,14 @@ import com.fuad.database.dao.BookDao;
 import com.fuad.database.domain.Book;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.stereotype.Component;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 
+@Component
 public class BookDaoImpl implements BookDao {
 
     private final JdbcTemplate jdbcTemplate;
@@ -22,7 +24,7 @@ public class BookDaoImpl implements BookDao {
     @Override
     public void create(Book book) {
         jdbcTemplate.update(
-                "INSERT INTO books(isbn, title, author_id) VALUE(? ,? ,?);",
+                "INSERT INTO books (isbn, title, author_id) VALUES (?, ?, ?)",
                 book.getIsbn(),
                 book.getTitle(),
                 book.getAuthorId()
@@ -31,7 +33,7 @@ public class BookDaoImpl implements BookDao {
     @Override
     public Optional<Book> findOne(String isbn){
         List<Book> result = jdbcTemplate.query(
-                "SELECT isbn, title, author_id FROM books WHERE isbn = ?;",
+                "SELECT isbn, title, author_id from books WHERE isbn = ? LIMIT 1",
                 new BookRowMapper(),
                 isbn
         );
@@ -44,7 +46,7 @@ public class BookDaoImpl implements BookDao {
             return Book.builder()
                     .isbn(rs.getString("isbn"))
                     .title(rs.getString("title"))
-                    .authorId(rs.getLong("authorId"))
+                    .authorId(rs.getLong("author_id"))
                     .build();
         }
     }

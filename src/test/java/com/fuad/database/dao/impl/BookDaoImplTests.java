@@ -1,5 +1,6 @@
 package com.fuad.database.dao.impl;
 
+import com.fuad.database.TestDataUtil;
 import com.fuad.database.domain.Book;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -13,39 +14,36 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
-public class BookDaoImplTest {
+public class BookDaoImplTests {
 
     @Mock
     private JdbcTemplate jdbcTemplate;
+
     @InjectMocks
     private BookDaoImpl underTest;
 
     @Test
-    public void testThatCreateBookGenerateCorrectSql() {
-        Book book = Book.builder()
-                .isbn("1245-4542-4580")
-                .title("test")
-                .authorId(1L)
-                .build();
+    public void testThatCreateBookGeneratesCorrectSql() {
+        Book book = TestDataUtil.createTestBook();
+
         underTest.create(book);
 
         verify(jdbcTemplate).update(
-                eq("INSERT INTO books(isbn, title, author_id) VALUE(? ,? ,?);"),
-                eq("1245-4542-4580"),
-                eq("test"),
+                eq("INSERT INTO books (isbn, title, author_id) VALUES (?, ?, ?)"),
+                eq("978-1-2345-6789-0"),
+                eq("The Shadow in the Attic"),
                 eq(1L)
         );
     }
 
     @Test
-    public void testThatFindOneBookGenerateCorrectSql() {
-        underTest.findOne("1245-4542-4580");
+    public void testThatFindOneBookGeneratesCorrectSql() {
+        underTest.findOne("978-1-2345-6789-0");
         verify(jdbcTemplate).query(
-                "SELECT isbn, title, author_id FROM books WHERE isbn = ?;",
+                eq("SELECT isbn, title, author_id from books WHERE isbn = ? LIMIT 1"),
                 ArgumentMatchers.<BookDaoImpl.BookRowMapper>any(),
-                eq("1245-4542-4580")
+                eq("978-1-2345-6789-0")
         );
-
     }
 
 }
