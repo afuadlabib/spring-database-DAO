@@ -3,6 +3,12 @@ package com.fuad.database.dao.impl;
 import com.fuad.database.dao.BookDao;
 import com.fuad.database.domain.Book;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
+
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.List;
+import java.util.Optional;
 
 public class BookDaoImpl implements BookDao {
 
@@ -16,10 +22,30 @@ public class BookDaoImpl implements BookDao {
     @Override
     public void create(Book book) {
         jdbcTemplate.update(
-                "INSERT INTO books(id, name, age) VALUE(? ,? ,?)",
+                "INSERT INTO books(isbn, title, author_id) VALUE(? ,? ,?);",
                 book.getIsbn(),
                 book.getTitle(),
                 book.getAuthorId()
         );
+    }
+    @Override
+    public Optional<Book> findOne(String isbn){
+        List<Book> result = jdbcTemplate.query(
+                "SELECT isbn, title, author_id FROM books WHERE isbn = ?;",
+                new BookRowMapper(),
+                isbn
+        );
+        return result.stream().findFirst();
+    }
+
+    public static class BookRowMapper implements RowMapper<Book>{
+        @Override
+        public Book mapRow(ResultSet rs, int rowNum) throws SQLException{
+            return Book.builder()
+                    .isbn(rs.getString("isbn"))
+                    .title(rs.getString("title"))
+                    .authorId(rs.getLong("authorId"))
+                    .build();
+        }
     }
 }

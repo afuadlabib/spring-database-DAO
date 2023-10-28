@@ -3,6 +3,7 @@ package com.fuad.database.dao.impl;
 import com.fuad.database.domain.Book;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentMatchers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -20,7 +21,7 @@ public class BookDaoImplTest {
     private BookDaoImpl underTest;
 
     @Test
-    public void testThatCreateBookGenerateCorrectSql(){
+    public void testThatCreateBookGenerateCorrectSql() {
         Book book = Book.builder()
                 .isbn("1245-4542-4580")
                 .title("test")
@@ -29,10 +30,22 @@ public class BookDaoImplTest {
         underTest.create(book);
 
         verify(jdbcTemplate).update(
-                eq("INSERT INTO books(id, name, age) VALUE(? ,? ,?)"),
+                eq("INSERT INTO books(isbn, title, author_id) VALUE(? ,? ,?);"),
                 eq("1245-4542-4580"),
                 eq("test"),
                 eq(1L)
         );
     }
+
+    @Test
+    public void testThatFindOneBookGenerateCorrectSql() {
+        underTest.findOne("1245-4542-4580");
+        verify(jdbcTemplate).query(
+                "SELECT isbn, title, author_id FROM books WHERE isbn = ?;",
+                ArgumentMatchers.<BookDaoImpl.BookRowMapper>any(),
+                eq("1245-4542-4580")
+        );
+
+    }
+
 }
